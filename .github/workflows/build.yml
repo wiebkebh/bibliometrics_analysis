@@ -1,23 +1,24 @@
-name: Publish Quarto Dashboard
+name: Publish to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main  # Trigger the workflow on pushes to the main branch
+  schedule:
+    - cron: '0 0 * * *' # Runs at midnight every day
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Build Quarto Dashboard
-        run: docker run --rm -v $PWD:/workspace kontarion/quarto quarto render --to=docs index.Rmd
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          github_token: ${{ secrets.GITHUB_TOKEN }} # The github token is not set in the secrets for now. This is just to show the work flow
+          publish_dir: ./statics_content

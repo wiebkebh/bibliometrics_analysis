@@ -1,0 +1,56 @@
+
+--- 
+title: "Co-Publications of KTH, Stockholm University, and Karolinska Institutet"
+theme: cerulean
+format:
+  dashboard
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+source("code.R")
+url <- "https://api.openalex.org"
+```
+
+
+## Top Journals/Venues for Co-Publications
+```{r publ_table, echo=FALSE}
+grouped_publ_df <- grouped_works_df(url)
+head_grouped_publ_df <- head(grouped_publ_df, 10)
+knitr::kable(head_grouped_publ_df, caption = "Top Journals/Venues for Co-Publications", col.names = c("Journal or Venue", "Number of co-publications"),)
+```
+
+```{r publ_df, echo=FALSE}
+publ_df <- publications_df(url)
+# print(str(publ_df))
+```
+## Frequency of Co-Publications
+```{r bar_chart, echo=FALSE}
+bar_chart <- ggplot(head_grouped_publ_df, aes(x = journal, y = frequency)) +
+  geom_bar(stat = "identity", fill = "blue", color = "black") +
+  labs(title = "Frequency of Co-Publications by Journal/Venue", 
+       x = "Journal", y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(bar_chart)
+```
+
+```{r publications_over_time, echo=FALSE}
+top_10 <- top_ten_journals(url)
+top_10_data <- publ_df[publ_df$journal %in% top_10, ]
+top_10_data$publication_date <- as.Date(top_10_data$publication_date)
+top_10_data <- subset(top_10_data, select = c(publication_date, journal))
+
+top_10_counts <- top_10_data %>%
+  group_by(publication_date, journal) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+line_chart <- ggplot(top_10_counts, aes(x = publication_date, y = count, color = journal)) +
+  geom_line() +
+  labs(title = "Number of Publications in Top 10 Journals Over Time", 
+       x = "Publication Date", y = "Number of Publications") +
+  scale_color_manual(values = rainbow(length(unique(top_10_counts$journal)))) +
+  theme_minimal()
+
+print(line_chart)
+```
