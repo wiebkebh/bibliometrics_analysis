@@ -1,8 +1,10 @@
 name: Publish to GitHub Pages
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # Runs at midnight every day
+  pull_request:
+    branches: [ "main" ]
+  #schedule:
+   # - cron: '0 0 * * *' # Runs at midnight every day
 
 jobs:
   build-and-deploy:
